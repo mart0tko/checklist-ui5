@@ -1,30 +1,51 @@
 import {
-  FlexBox,
-  FlexBoxAlignItems,
-  FlexBoxDirection,
-  FlexBoxJustifyContent,
-  Link,
-  LinkDesign,
   ShellBar,
   ThemeProvider
 } from '@ui5/webcomponents-react';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
+import { db } from './firebase';
+import { collection, onSnapshot, addDoc } from 'firebase/firestore';
+import CheckboxListDialog from './Components/CheckboxListDialog';
+import ResultsTable from './Components/ResultsTable';
+
+const isOpen = (checklist) => {
+  if (!checklist || checklist && !checklist.length) {
+    return true;
+  }
+
+  const oLastRecord = checklist[0];
+  const lastDate = new Date(oLastRecord.timestamp)
+  const currentDate = new Date();
+
+  // if today is filled
+  if (currentDate.getDate() === lastDate.getDate() && currentDate.getMonth() === lastDate.getMonth() && currentDate.getYear() === lastDate.getYear()) {
+    return false;
+  }
+
+  return true;
+}
 
 function App() {
+  const [checklist, setChecklist] = useState(undefined);
+
+  const handleCheckboxDialogSubmit = (oTodaysCheck) => {
+    checklist.push(oTodaysCheck);
+    setChecklist([...checklist]);
+    addDoc(collection(db, 'checklist'), { timestamp: Date.now(), ...oTodaysCheck });
+  }
+
+  useEffect(() => {
+    onSnapshot(collection(db, 'checklist'), (snapshot) => {
+      setChecklist(snapshot.docs.map(doc => doc.data()));
+    });
+  }, []);
+
   return (
     <ThemeProvider>
-      <ShellBar primaryTitle="UI5 Web Components for React Template" />
-      <FlexBox
-        style={{ width: '100%', height: '100vh' }}
-        direction={FlexBoxDirection.Column}
-        justifyContent={FlexBoxJustifyContent.Center}
-        alignItems={FlexBoxAlignItems.Center}
-      >
-        <Link href="https://sap.github.io/ui5-webcomponents-react/" target="_blank" design={LinkDesign.Emphasized}>
-          Getting Started with UI5 Web Component for React
-        </Link>
-      </FlexBox>
+      <ShellBar primaryTitle="Checklist" />
+      {isOpen(checklist) && <CheckboxListDialog handleCheckboxDialogSubmit={handleCheckboxDialogSubmit} isOpen={isOpen(checklist)} />}
+      <ResultsTable data={checklist} />
     </ThemeProvider>
   );
 }

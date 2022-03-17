@@ -1,0 +1,1 @@
+export const fnUpdateArrayOfObjects = (o) => o.map(i => { return { ...i } });
