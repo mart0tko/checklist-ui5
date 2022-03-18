@@ -8,12 +8,8 @@ const checklistFields = {
     work: false
 };
 
-function CheckboxListDialog({ handleCheckboxDialogSubmit, isOpen }) {
+function CheckboxListDialog({ handleCheckboxDialogSubmit, isOpen, onDecline }) {
     const [checkboxes, setCheckboxes] = useState({ ...checklistFields });
-
-    useEffect(() => {
-        return () => console.log('unmounted')
-    }, [])
 
     const handleSubmit = () => {
         handleCheckboxDialogSubmit(checkboxes);
@@ -22,6 +18,7 @@ function CheckboxListDialog({ handleCheckboxDialogSubmit, isOpen }) {
 
     const handleDecline = () => {
         setCheckboxes({ ...checklistFields });
+        onDecline();
     };
 
     const handleOnCheckboxChange = (oEvent, key) => {

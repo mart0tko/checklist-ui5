@@ -4,17 +4,16 @@ import {
 } from '@ui5/webcomponents-react';
 import React, { useEffect, useState } from 'react';
 import './App.css';
-import { db } from './firebase';
-import { collection, addDoc, getDocs, orderBy } from 'firebase/firestore';
+import { getAllDocs, addSingleDoc, deleteSingleDoc, updateSingleDoc } from './firebase';
 import CheckboxListDialog from './Components/CheckboxListDialog';
 import ResultsTable from './Components/ResultsTable';
 
-const isOpen = (checklist) => {
+const isTodayChecked = (checklist) => {
   if (!checklist || checklist && !checklist.length) {
     return true;
   }
 
-  const oLastRecord = checklist[0];
+  const oLastRecord = checklist[checklist.length - 1];
   const lastDate = new Date(oLastRecord.timestamp)
   const currentDate = new Date();
 
@@ -26,26 +25,45 @@ const isOpen = (checklist) => {
   return true;
 }
 
-function App() {
-  const [checklist, setChecklist] = useState(undefined);
+const defaultMode = { isUpdate: false, sId: undefined };
 
-  const handleCheckboxDialogSubmit = (oTodaysCheck) => {
-    checklist.push(oTodaysCheck);
-    setChecklist([...checklist]);
-    addDoc(collection(db, 'checklist'), { timestamp: Date.now(), ...oTodaysCheck });
+function App() {
+  const [checklist, setChecklist] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [mode, setMode] = useState({ ...defaultMode });
+
+  const handleCheckboxDialogSubmit = async (oTodaysCheck) => {
+    !mode.isUpdate ? await addSingleDoc('checklist', oTodaysCheck) : await updateSingleDoc('checklist', oTodaysCheck, mode.sId);
+    const newChecklist = await getAllDocs('checklist');
+    setChecklist([...newChecklist]);
+    setMode({ ...defaultMode });
+    setIsOpen(false);
   }
 
-  useEffect(() => {
-    getDocs(collection(db, 'checklist'), orderBy("timestamp", "desc")).then((snapshot) => {
-      setChecklist(snapshot.docs.map(doc => doc.data()));
-    });
+  const handleDelete = async (id) => {
+    await deleteSingleDoc('checklist', id);
+    const newChecklist = await getAllDocs('checklist');
+    setChecklist([...newChecklist]);
+    setIsOpen(isTodayChecked(newChecklist));
+  }
+
+  const handleUpdate = (id) => {
+    debugger
+    setIsOpen(true);
+    setMode({ isUpdate: true, sId: id });
+  }
+
+  useEffect(async () => {
+    const newChecklist = await getAllDocs('checklist');
+    setChecklist(newChecklist);
+    setIsOpen(isTodayChecked(newChecklist));
   }, []);
 
   return (
     <ThemeProvider>
       <ShellBar primaryTitle="Checklist" />
-      {isOpen(checklist) && <CheckboxListDialog handleCheckboxDialogSubmit={handleCheckboxDialogSubmit} isOpen={isOpen(checklist)} />}
-      <ResultsTable data={checklist} />
+      {isOpen && <CheckboxListDialog handleCheckboxDialogSubmit={handleCheckboxDialogSubmit} isOpen={isOpen} onDecline={() => setIsOpen(false)} />}
+      <ResultsTable data={checklist} handleDelete={handleDelete} handleUpdate={handleUpdate} />
     </ThemeProvider>
   );
 }
