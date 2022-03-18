@@ -5,7 +5,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import './App.css';
 import { db } from './firebase';
-import { collection, onSnapshot, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, orderBy } from 'firebase/firestore';
 import CheckboxListDialog from './Components/CheckboxListDialog';
 import ResultsTable from './Components/ResultsTable';
 
@@ -36,7 +36,7 @@ function App() {
   }
 
   useEffect(() => {
-    onSnapshot(collection(db, 'checklist'), (snapshot) => {
+    getDocs(collection(db, 'checklist'), orderBy("timestamp", "desc")).then((snapshot) => {
       setChecklist(snapshot.docs.map(doc => doc.data()));
     });
   }, []);
