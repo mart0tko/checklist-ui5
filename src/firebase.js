@@ -2,13 +2,13 @@ import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, getDocs, orderBy, doc, deleteDoc, updateDoc } from 'firebase/firestore';
 
 const firebaseConfig = {
-    apiKey: "AIzaSyAsOntVMCdgIFFXKoaD4jucvVSXB-SkmPE",
-    authDomain: "checklist-ui5.firebaseapp.com",
-    databaseURL: "https://checklist-ui5-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "checklist-ui5",
-    storageBucket: "checklist-ui5.appspot.com",
-    messagingSenderId: "259606768268",
-    appId: "1:259606768268:web:86f5299324ecb72e3969a9"
+    apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+    authDomain: process.env.REACT_APP_FIREBASE_DOMAIN,
+    databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+    projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+    storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+    messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGE_SENDER_ID,
+    appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
 const firebaseApp = initializeApp(firebaseConfig);

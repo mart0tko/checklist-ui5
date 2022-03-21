@@ -48,7 +48,6 @@ function App() {
   }
 
   const handleUpdate = (id) => {
-    debugger
     setIsOpen(true);
     setMode({ isUpdate: true, sId: id });
   }
