@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, addDoc, getDocs, orderBy, doc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { getFirestore, collection, addDoc, getDocs, orderBy, doc, deleteDoc, updateDoc, query } from 'firebase/firestore';
 
 const firebaseConfig = {
     apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
@@ -15,7 +15,8 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getFirestore(firebaseApp);
 
 const getAllDocs = async (sCollection) => {
-    return getDocs(collection(db, sCollection), orderBy("timestamp", "asc")).then((snapshot) => {
+    const oQuery = query(collection(db, sCollection), orderBy("timestamp", "desc"));
+    return getDocs(oQuery).then((snapshot) => {
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
     });
 }

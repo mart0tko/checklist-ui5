@@ -1,23 +1,17 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { CheckBox, Dialog, Button } from '@ui5/webcomponents-react';
-import useOpen from './useOpen';
-
-const checklistFields = {
-    eat: false,
-    sleep: false,
-    work: false
-};
+import { oChecklistFields } from '../constants';
 
 function CheckboxListDialog({ handleCheckboxDialogSubmit, isOpen, onDecline }) {
-    const [checkboxes, setCheckboxes] = useState({ ...checklistFields });
+    const [checkboxes, setCheckboxes] = useState({ ...oChecklistFields });
 
     const handleSubmit = () => {
         handleCheckboxDialogSubmit(checkboxes);
-        setCheckboxes({ ...checklistFields });
+        setCheckboxes({ ...oChecklistFields });
     };
 
     const handleDecline = () => {
-        setCheckboxes({ ...checklistFields });
+        setCheckboxes({ ...oChecklistFields });
         onDecline();
     };
 
